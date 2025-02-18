@@ -20,6 +20,5 @@ jobs:
           channel: 'stable'
           architecture: x64
       - run: flutter pub get
-         - working-directory: ./number_trivia_feb_2025
       - run: flutter analyze
       - run: flutter test
