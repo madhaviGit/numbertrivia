@@ -14,9 +14,9 @@ part 'number_trivia_event.dart';
 
 part 'number_trivia_state.dart';
 
-const String SERVER_FAILURE_MESSAGE = "Server Failure";
-const String CACHE_FAILURE_MESSAGE = "Cache Failure";
-const String Invalid_INPUT_Message = "Invalid input Failure";
+const String serverFailureMessage = "Server Failure";
+const String cacheFailureMessage = "Cache Failure";
+const String invalidInputMessage = "Invalid input Failure";
 
 class NumberTriviaBloc extends Bloc<NumberTriviaEvent, NumberTriviaState> {
   final GetConcreteNumberTrivia getConcreteNumberTrivia;
@@ -28,22 +28,22 @@ class NumberTriviaBloc extends Bloc<NumberTriviaEvent, NumberTriviaState> {
     required this.getRandomNumberTrivia,
     required this.inputConveter})
       : super(Empty()) {
-    String _mapFailureToMessage(Failure failure) {
+    String mapFailureToMessage(Failure failure) {
       switch (failure.runtimeType) {
-        case ServerFailure:
-          return SERVER_FAILURE_MESSAGE;
-        case CacheFailure:
-          return CACHE_FAILURE_MESSAGE;
+        case ServerFailure _:
+          return serverFailureMessage;
+        case CacheFailure _:
+          return cacheFailureMessage;
         default:
           return 'Unexpected error';
       }
     }
 
-    Stream<NumberTriviaState> _eitherLoadedOrErrorState(
+    Stream<NumberTriviaState> eitherLoadedOrErrorState(
         Either<Failure, NumberTrivia> failureOrTrivia,
         ) async* {
       yield failureOrTrivia.fold(
-            (failure) => ErrorState(errorMessage: _mapFailureToMessage(failure)),
+            (failure) => ErrorState(errorMessage: mapFailureToMessage(failure)),
             (trivia) => Loaded(trivia: trivia),
       );
     }
@@ -54,12 +54,12 @@ class NumberTriviaBloc extends Bloc<NumberTriviaEvent, NumberTriviaState> {
       final inputEither = inputConveter.stringToUnsignedInteger(
           event.numberString);
       inputEither.fold((failure) async* {
-        emit(ErrorState(errorMessage: Invalid_INPUT_Message)) ;
+        emit(ErrorState(errorMessage: invalidInputMessage)) ;
       }, (integer) async*{
         emit( Loading());
         final failureOrTrivia =
         await getConcreteNumberTrivia(Params(number: integer));
-        yield* _eitherLoadedOrErrorState(failureOrTrivia);
+        yield* eitherLoadedOrErrorState(failureOrTrivia);
       });
     });
 
